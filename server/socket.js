@@ -9,9 +9,41 @@ const EVENTS = {
 
 // TODO: move model to other side
 class Character {
-  constructor (id, name) {
-    this.id = id
-    this.name = name
+  constructor(id, name, type) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+    this.acceleration = {
+      x: 0,
+      y: 0,
+    };
+    this.velocity = {
+      x: 0,
+      y: 0,
+    };
+    this.position = {
+      x: 50,
+      y: 50,
+    };
+  }
+
+  setAcceleration(acceleration) {
+    this.acceleration = acceleration;
+  }
+  setVelocity(velocity) {
+    this.velocity = velocity;
+  }
+
+  setPosition(position) {
+    this.position = position;
+  }
+
+  save(charStorage) {
+    return charStorage.addCharacter(this.id, this);
+  }
+
+  destroy(charStorage) {
+    return charStorage.removeCharacter(this.id);
   }
 }
 
@@ -83,16 +115,17 @@ class Socket {
 
   async _onLogin (payload) {
     console.log('Payload', payload)
-    const char = new Character(this.id, payload.name)
-    await this._deps.repos.charactersConnected.addCharacter(char)
+    this._character = new Character(this._id, payload.name)
+    await this._character.save(this._deps.repos.charactersConnected);
+    // await this._deps.repos.charactersConnected.addCharacter(this._character.id, this._character)
     this._send(EVENTS.LOGGED, { character: this._character })
     this._deps.bus.publish(EVENTS.CONNECTED, { character: this._character })
     const chars =
       await this._deps.repos.charactersConnected.retrieveCharacters()
+
     for (const char of Object.values(chars)) {
-      const ch = JSON.parse(char)
-      if (ch) {
-        this._send(EVENTS.CONNECTED, { character: ch })
+      if (char) {
+        this._send(EVENTS.CONNECTED, { character: char })
       }
     }
   }
@@ -101,11 +134,23 @@ class Socket {
     this._socket.send(JSON.stringify({ event, payload }))
   }
 
-  destroy () {
-    this._socket.removeAllListeners()
+  async destroy () {
+    this._deps.bus.publish(EVENTS.DISCONNECTED, { character: this._character });
+
+    await this._character.destroy(this._deps.repos.charactersConnected)
+    // await this._deps.repos.charactersConnected.removeCharacter(this._character.id);
+    for (const unsub of this._unsubscribeCallbacks) {
+      unsub();
+    }
+    this._socket.removeAllListeners();
+    this._socket.close();
   }
 
   async _onMovement (payload) {
+    this._character.setAcceleration(payload.acceleration);
+    this._character.setVelocity(payload.velocity);
+    this._character.setPosition(payload.position);
+    await this._character.save(this._deps.repos.charactersConnected);
     this._deps.bus.publish(EVENTS.MOVEMENT, {
       character: this._character,
       movement: payload

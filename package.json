@@ -4,7 +4,10 @@
   "description": "Afomario",
   "keywords": [],
   "devDependencies": {
+    "concurrently": "^7.6.0",
     "expose-loader": "4.0.0",
+    "live-server": "^1.2.2",
+    "nodemon": "^2.0.20",
     "ts-loader": "9.3.1",
     "typescript": "4.8.0-dev.20220730",
     "webpack": "5.74.0",
@@ -18,7 +21,11 @@
     "ws": "^8.12.0"
   },
   "scripts": {
-    "dev": "webpack --mode development --watch"
+    "build-game": "webpack",
+    "server": "node server",
+    "game-dev": "webpack --mode development --watch",
+    "server-dev": "nodemon server",
+    "dev": "concurrently 'npm run game-dev' 'live-server' 'npm run server-dev'"
   },
   "author": {
     "name": "afor"

@@ -17,3 +17,5 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
   },
   scene: [MainScene]
 }
+
+export const WEBSOCKET_URL = `ws://localhost:3333`;
