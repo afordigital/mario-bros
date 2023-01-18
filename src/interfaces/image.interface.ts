@@ -4,4 +4,5 @@ export interface IImageConstructor {
   y: number;
   texture: string | Phaser.Textures.Texture;
   frame?: string | number;
+  scale?: number;
 }

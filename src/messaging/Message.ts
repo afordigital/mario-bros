@@ -15,6 +15,10 @@ export class MessageController extends events.EventEmitter {
     this.emit(m.event, m.payload)
   }
 
+  movement(movement: any) {
+    this._send('movement', movement);
+  }
+
   private _send<T> (type: string, payload: T) {
     this._ws.send(
       JSON.stringify({

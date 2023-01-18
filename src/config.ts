@@ -4,7 +4,7 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
   title: 'Afomario',
   url: 'https://github.com/Aforina/mario-phaser.git',
   version: '2.0',
-  width: 512,
+  width: 1080,
   height: 256,
   backgroundColor: 0x5c94fc,
   type: Phaser.AUTO,
@@ -17,3 +17,5 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
   },
   scene: [MainScene]
 }
+
+export const WEBSOCKET_URL = location.href.replace('http', 'ws');

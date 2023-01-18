@@ -13,7 +13,7 @@ class MemoryCharactersRepo {
     this._inner[id] = undefined
   }
 
-  async retrieveCharacters (id) {
+  async retrieveCharacters () {
     return Object.values(this._inner)
   }
 }
