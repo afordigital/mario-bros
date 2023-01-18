@@ -1,10 +1,10 @@
 import { MessageController } from '../messaging/Message'
 import { Player } from '../models/character'
-import { Mario } from '../objects/mario'
-import { RemotePlayer } from '../objects/mario_remote';
+import { SelfPlayer } from '../objects/self_player'
+import { RemotePlayer } from '../objects/remote_player';
 
 export class MainScene extends Phaser.Scene {
-  private mario: Mario
+  private _selfObject: SelfPlayer
   private _layer: Phaser.Tilemaps.TilemapLayer;
   private _players: Record<string, any> = {};
   private _isCreated = false;
@@ -46,6 +46,7 @@ export class MainScene extends Phaser.Scene {
   }
 
   private _createRemotePlayer(player: Player) {
+
     const sprite = new RemotePlayer({
       scene: this,
       x: player.character.position.x,
@@ -84,12 +85,6 @@ export class MainScene extends Phaser.Scene {
       frameWidth: 34,
       frameHeight: 34
     })
-
-
-    this.load.spritesheet('duck', './assets/duck-pixel.png', {
-      frameWidth: 100,
-      frameHeight: 100
-    })
   }
 
   create(): void {
@@ -105,16 +100,16 @@ export class MainScene extends Phaser.Scene {
     map.setCollision(17)
     map.setCollision(40)
 
-    this.mario = new Mario({
+    this._selfObject = new SelfPlayer({
       scene: this,
       x: this._selfPlayer.character.position.x,
       y: this._selfPlayer.character.position.y,
-      texture: 'mario'
+      texture: 'mario',
     }, (movement: any) => this._messaging.movement(movement))
 
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels)
-    this.cameras.main.startFollow(this.mario)
-    this.physics.add.collider(this.mario, this._layer)
+    this.cameras.main.startFollow(this._selfObject)
+    this.physics.add.collider(this._selfObject, this._layer)
 
     this._isCreated = true;
     for (const player of this._createBuffer) {
@@ -132,6 +127,6 @@ export class MainScene extends Phaser.Scene {
   }
 
   update(): void {
-    this.mario.update()
+    this._selfObject.update()
   }
 }

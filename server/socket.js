@@ -1,4 +1,5 @@
 const uuid = require('uuid')
+const config = require('./config');
 
 const EVENTS = {
   LOGGED: 'logged',
@@ -68,7 +69,6 @@ class Socket {
           }
         })
       )
-      console.debug(`Subscribed to ${event}`)
     }
   }
 
@@ -101,7 +101,6 @@ class Socket {
   routing (buff) {
     try {
       const { type, payload } = JSON.parse(buff.toString())
-      console.log('Message received', type, payload)
       switch (type) {
         case 'login':
           this._onLogin(payload)
@@ -114,10 +113,17 @@ class Socket {
   }
 
   async _onLogin (payload) {
-    console.log('Payload', payload)
-    this._character = new Character(this._id, payload.name)
+    let type = 'duck';
+    if (payload.name === config.characters.mario.password) {
+      payload.name = config.characters.mario.name;
+      type = 'mario';
+    }
+    if (payload.name === config.characters.luigi.password) {
+      payload.name = config.characters.luigi.name;
+      type = 'luigi';
+    }
+    this._character = new Character(this._id, payload.name, type)
     await this._character.save(this._deps.repos.charactersConnected);
-    // await this._deps.repos.charactersConnected.addCharacter(this._character.id, this._character)
     this._send(EVENTS.LOGGED, { character: this._character })
     this._deps.bus.publish(EVENTS.CONNECTED, { character: this._character })
     const chars =
@@ -138,7 +144,6 @@ class Socket {
     this._deps.bus.publish(EVENTS.DISCONNECTED, { character: this._character });
 
     await this._character.destroy(this._deps.repos.charactersConnected)
-    // await this._deps.repos.charactersConnected.removeCharacter(this._character.id);
     for (const unsub of this._unsubscribeCallbacks) {
       unsub();
     }

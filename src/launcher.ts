@@ -9,9 +9,9 @@ export class Launcher {
   private _connected = false;
   private _ws: WebSocket | null = null;
   private _mc: MessageController | null = null;
-  private _game: Game;
   private _selfPlayer: Player;
-  constructor(public name: string) {
+  protected _game: Game;
+  constructor(public name: string, public isViewMode: boolean) {
     this.name = name;
   }
 
@@ -42,6 +42,6 @@ export class Launcher {
   }
 
   private _launchGame(selfPlayer: Player) {
-    this._game = new Game(GameConfig, selfPlayer, this._mc);
+    this._game = new Game(GameConfig, this.isViewMode, selfPlayer, this._mc);
   }
 }

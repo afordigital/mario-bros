@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require('express')
 const http = require('http')
 const { WebSocketServer } = require('ws')
 const { MemoryCharactersRepo } = require('./repos')
-const config = require('./config')
 const { MemoryBus } = require('./bus')
-const { Socket } = require('./socket')
+const { Socket } = require('./socket');
+const path = require('path');
 
 async function main () {
   const app = express()
@@ -12,6 +13,8 @@ async function main () {
   const ws = new WebSocketServer({
     server: srv
   })
+
+  app.use(express.static(path.join(__dirname, '..', 'public')))
 
   const deps = {
     repos: {

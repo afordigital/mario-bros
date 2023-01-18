@@ -9,6 +9,7 @@ export interface Character {
   position: Vector2;
   velocity: Vector2;
   acceleration: Vector2;
+  type: string;
 }
 
 export interface Player {
